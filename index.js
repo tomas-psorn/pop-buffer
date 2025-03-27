@@ -8,15 +8,15 @@ var quantizeVertices = require('quantize-vertices');
 var rescaleVertices = require('rescale-vertices');
 
 
-function encode(cells, positions, maxLevel) {
+function encode(cells, positions, normals, uvs, maxLevel) {
   var boundingBox = computeBoundingBox(positions);
 
   var buckets = buildBuckets(cells, positions, maxLevel);
-  var levels = buildLevels(buckets, positions);
+  var levels = buildLevels(buckets, positions, normals, uvs);
 
   return {
     bounds: boundingBox,
-    levels: levels
+    levels: levels,
   };
 }
 
@@ -46,7 +46,7 @@ function decode(pb) {
 }
 
 
-function buildLevels(buckets, positions) {
+function buildLevels(buckets, positions, normals, uvs) {
   var indexLookup = {};
   var lastIndex = 0;
   var levels = new Array(buckets.length);
@@ -58,7 +58,9 @@ function buildLevels(buckets, positions) {
     var cells = buckets[i];
     var level = {
       cells: new Array(cells.length),
-      positions: []
+      positions: [],
+      normals: [],
+      uvs: [],
     };
 
     for(var j=0; j<cells.length; j++) {
@@ -70,6 +72,8 @@ function buildLevels(buckets, positions) {
 
         if(indexLookup[index] === undefined) {
           level.positions.push(positions[index]);
+          level.normals.push(normals[index]);
+          level.uvs.push(uvs[index])
           indexLookup[index] = lastIndex;
           lastIndex++;
         }
@@ -156,7 +160,7 @@ function listNonDegenerateCells(cells, positions) {
       positions[cells[i][0]],
       positions[cells[i][1]],
       positions[cells[i][2]],
-      ]);
+    ]);
 
     if(!degenerate) {
       nonDegenerateCells.push(i);
