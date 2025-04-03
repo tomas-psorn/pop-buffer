@@ -60,7 +60,7 @@ function buildLevels(buckets, positions, normals, uvs) {
       cells: new Array(cells.length),
       positions: [],
       normals: [],
-      uvs: [],
+      uvs: uvs ? [] : undefined,
     };
 
     for(var j=0; j<cells.length; j++) {
@@ -73,7 +73,9 @@ function buildLevels(buckets, positions, normals, uvs) {
         if(indexLookup[index] === undefined) {
           level.positions.push(positions[index]);
           level.normals.push(normals[index]);
-          level.uvs.push(uvs[index])
+          if (uvs) {
+            level.uvs.push(uvs[index]);
+          }
           indexLookup[index] = lastIndex;
           lastIndex++;
         }
